@@ -1,0 +1,49 @@
+{
+  "services": [
+    {
+      "id": "1",
+      "name": "Corte de pelo mujer",
+      "description": "Corte de pelo para mujer",
+      "duration": "1 hora",
+      "price": 400,
+      "category": "",
+      "available": true
+    },
+    {
+      "id": "2",
+      "name": "Corte de pelo hombre",
+      "description": "Corte de pelo para hombre",
+      "duration": "1 hora",
+      "price": 300,
+      "category": "",
+      "available": true
+    },
+    {
+      "id": "3",
+      "name": "Gelish",
+      "description": "Servicio de uñas gelish",
+      "duration": "1 hora",
+      "price": 300,
+      "category": "",
+      "available": true
+    },
+    {
+      "id": "4",
+      "name": "Maquillaje",
+      "description": "Servicio de maquillaje",
+      "duration": "2 horas",
+      "price": 1000,
+      "category": "",
+      "available": true
+    },
+    {
+      "id": "5",
+      "name": "Pedicure",
+      "description": "Pedicure",
+      "duration": "1 hora",
+      "price": 300,
+      "category": "",
+      "available": false
+    }
+  ]
+}
