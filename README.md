@@ -7,7 +7,7 @@ Proyecto Node.js (ESM) que implementa una clase `ServiceManager` para gestionar 
 1. Clona el repositorio y entra a la carpeta del proyecto:
 
    ```bash
-   git clone <url-del-repositorio>
+   git clone <https://github.com/TanMar23/services-admin>
    cd services-admin
    ```
 
@@ -37,10 +37,10 @@ Esto carga los servicios desde `src/data/services.json`, crea una instancia de `
 
 ## Variables de entorno necesarias
 
-| Variable   | Descripción                                              | Ejemplo      |
-| ---------- | --------------------------------------------------------- | ------------ |
-| `PORT`     | Puerto en el que correrá la aplicación                    | `3000`       |
-| `NODE_ENV` | Entorno de ejecución (`development`, `production`, etc.)  | `development`|
+| Variable   | Descripción                                              | Ejemplo       |
+| ---------- | -------------------------------------------------------- | ------------- |
+| `PORT`     | Puerto en el que correrá la aplicación                   | `3000`        |
+| `NODE_ENV` | Entorno de ejecución (`development`, `production`, etc.) | `development` |
 
 Ambas variables son obligatorias: si falta alguna, la aplicación se detiene al arrancar (ver `src/config/env.config.js`).
 
@@ -60,15 +60,15 @@ Cada servicio tiene la siguiente forma:
 }
 ```
 
-| Campo         | Tipo      | Descripción                                             |
-| ------------- | --------- | -------------------------------------------------------- |
+| Campo         | Tipo      | Descripción                                                                                        |
+| ------------- | --------- | -------------------------------------------------------------------------------------------------- |
 | `id`          | `string`  | Identificador único. Se genera automáticamente al crear un servicio; no puede modificarse después. |
-| `name`        | `string`  | Nombre del servicio (ej. "Corte de pelo mujer").          |
-| `description` | `string`  | Descripción breve del servicio.                           |
-| `duration`    | `string`  | Duración estimada (ej. "1 hora").                         |
-| `price`       | `number`  | Precio del servicio.                                      |
-| `category`    | `string`  | Categoría a la que pertenece el servicio.                 |
-| `available`   | `boolean` | Indica si el servicio está disponible para reservarse.     |
+| `name`        | `string`  | Nombre del servicio (ej. "Corte de pelo mujer").                                                   |
+| `description` | `string`  | Descripción breve del servicio.                                                                    |
+| `duration`    | `string`  | Duración estimada (ej. "1 hora").                                                                  |
+| `price`       | `number`  | Precio del servicio.                                                                               |
+| `category`    | `string`  | Categoría a la que pertenece el servicio.                                                          |
+| `available`   | `boolean` | Indica si el servicio está disponible para reservarse.                                             |
 
 Los datos se almacenan en `src/data/services.json`.
 
@@ -80,9 +80,7 @@ Clase que gestiona la colección de servicios. Recibe el arreglo inicial de serv
 import { readFileSync } from 'node:fs';
 import ServiceManager from './managers/ServiceManager.js';
 
-const { services } = JSON.parse(
-  readFileSync(new URL('./data/services.json', import.meta.url))
-);
+const { services } = JSON.parse(readFileSync(new URL('./data/services.json', import.meta.url)));
 
 const manager = new ServiceManager(services);
 ```
