@@ -3,8 +3,20 @@ export default class ServiceManager {
     this.services = services
   }
 
-  getServices = () => {
-    return this.services;
+  getServices = (filters = {}) => {
+    let result = this.services
+
+    if (filters.category !== undefined) {
+      result = result.filter(service => service.category.includes(filters.category))
+    }
+  
+
+    if (filters.available !== undefined) {
+      const isAvailable = filters.available === "true"
+      result = result.filter(service => service.available === isAvailable)
+    }
+
+    return result
   }; // → devuelve todos los servicios
 
   getServiceById = (id) => {
@@ -25,7 +37,7 @@ export default class ServiceManager {
 
     this.services.push(serviceData)
 
-    return 'Nuevo servicio creado'
+    return serviceData
 
   }; //  agrega un servicio; el id se genera automáticamente (no se recibe como parámetro); valida que estén presentes: name, description, duration, price, category, available; rechaza servicios incompletos
 
@@ -37,11 +49,11 @@ export default class ServiceManager {
     }
 
      if ('id' in updatedData) {
-        return null
+        return "INVALID_ID"
     }
 
     Object.assign(serviceToUpdate, updatedData)
-    return `El servicio con id ${id} ha sido actualizado`
+    return serviceToUpdate
     
   }; // → actualiza el servicio; no permite modificar el id; devuelve null/error si no existe
 
@@ -49,7 +61,7 @@ export default class ServiceManager {
     const position = this.services.findIndex(p => p.id === id)
     if (position !== -1) {
         this.services.splice(position, 1)
-        return `El servicio con id ${id} fue eliminado`
+        return true
     } else {
         return null
     }
