@@ -1,0 +1,27 @@
+{
+  "bookings": [
+    {
+      "id": "b1e7c1a0-4b3a-4e9f-9c2d-1a2b3c4d5e6f",
+      "clientName": "Lucía Fernández",
+      "clientEmail": "lucia.fernandez@example.com",
+      "date": "2026-09-10",
+      "time": "14:30",
+      "status": "pending",
+      "services": [
+        { "service": "1", "quantity": 1 },
+        { "service": "3", "quantity": 2 }
+      ]
+    },
+    {
+      "id": "f2a8d5e1-7c6b-4a2d-8e1f-9b0c1d2e3f4a",
+      "clientName": "Martín Gómez",
+      "clientEmail": "martin.gomez@example.com",
+      "date": "2026-09-11",
+      "time": "10:00",
+      "status": "pending",
+      "services": [
+        { "service": "2", "quantity": 1 }
+      ]
+    }
+  ]
+}
