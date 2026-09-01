@@ -1,100 +1,93 @@
-import { Router } from "express"
-import { readFileSync } from "node:fs"
-import ServiceManager from "../managers/ServiceManager.js"
+import { Router } from 'express';
+import ServiceManager from '../managers/ServiceManager.js';
 
-const router = Router()
+const router = Router();
 
-const { services } = JSON.parse(readFileSync(new URL('../data/services.json', import.meta.url))
-)
+const dataPath = new URL('../data/services.json', import.meta.url);
 
-const manager = new ServiceManager(services)
+const manager = new ServiceManager();
 
+router.get('/', async (req, res) => {
+  const { category, available } = req.query;
+  const data = await manager.getServices({ category, available }, dataPath);
+  return res.status(200).json({
+    status: 'success',
+    data,
+  });
+});
 
-router.get("/", (req, res) => {
-    const { category, available } = req.query
-    // router llama a un método del manager
-    const data = manager.getServices({category, available})
-      return res.status(200).json({
-        status: "success",
-        data
-    })
-})
+router.get('/:sid', async (req, res) => {
+  const { sid } = req.params;
+  const data = await manager.getServiceById(sid, dataPath);
 
-router.get("/:sid", (req, res) => {
-    const { sid } = req.params
-    const data = manager.getServiceById(sid)
+  if (data === null) {
+    return res.status(404).json({
+      status: 'error',
+      message: `Elemento con id ${sid} no encontrado`,
+    });
+  }
+  return res.status(200).json({
+    status: 'success',
+    data,
+  });
+});
 
-    if (data === null) {
-        return res.status(404).json({
-            status: "error",
-            message: `Elemento con id ${sid} no encontrado`
-        })
+router.post('/', async (req, res) => {
+  const newServiceData = await manager.addService(req.body, dataPath);
 
-    }
-    return res.status(200).json({
-        status: "success",
-        data
-    })
-})
+  if (newServiceData === null) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Error, no fue posible crear nuevo elemento',
+    });
+  }
 
-router.post("/", (req, res) => {
-    const newServiceData = manager.addService(req.body)
+  return res.status(201).json({
+    status: 'success',
+    data: newServiceData,
+    message: 'Nuevo elemento creado exitosamente',
+  });
+});
 
-    if (newServiceData === null) {
-        return res.status(400).json({
-            status: "error", 
-            message: "Error, no fue posible crear nuevo elemento"
-        })
-    }
+router.put('/:sid', async (req, res) => {
+  const { sid } = req.params;
+  const updatedData = await manager.updateService(sid, req.body, dataPath);
 
-    return res.status(201).json({
-        status: "success",
-        data: newServiceData,
-        message: "Nuevo elemento creado exitosamente"
-    })
-})
+  if (updatedData === null) {
+    return res.status(404).json({
+      status: 'error',
+      message: 'Error: el recurso a actualizar no existe',
+    });
+  }
 
-router.put("/:sid", (req, res) => {
-    const { sid } = req.params
-    const updatedData = manager.updateService(sid, req.body)
+  if (updatedData === 'INVALID_ID') {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Error: intentaste modificar el id',
+    });
+  }
 
-    if (updatedData === null) {
-        return res.status(404).json({
-            status: "error",
-            message: "Error: el recurso a actualizar no existe"
-        })
-    }
+  return res.status(200).json({
+    status: 'success',
+    data: updatedData,
+    message: 'Elemento actualizado exitosamente',
+  });
+});
 
-     if (updatedData === "INVALID_ID") {
-        return res.status(400).json({
-            status: "error",
-            message: "Error: intentaste modificar el id"
-        })
-    }
+router.delete('/:sid', async (req, res) => {
+  const { sid } = req.params;
+  const deleteItem = await manager.deleteService(sid, dataPath);
 
-    return res.status(200).json({
-        status: "success",
-        data: updatedData,
-        message: 'Elemento actualizado exitosamente'
-    })
+  if (deleteItem === null) {
+    return res.status(404).json({
+      status: 'error',
+      message: 'Error al borrar elemento',
+    });
+  }
+  return res.status(200).json({
+    status: 'success',
+    message: `Elemento con id ${sid} eliminado exitosamente`,
+  });
+});
 
-})
-
-router.delete("/:sid", (req, res) => {
-    const { sid } = req.params
-    const deleteItem = manager.deleteService(sid)
-
-    if (deleteItem === null) {
-        return res.status(404).json({
-          status: "error",
-          message: "Error al borrar elemento"  
-        })
-    }
-    return res.status(200).json({
-        status: "success",
-        message: `Elemento con id ${sid} eliminado exitosamente`
-    })
-})
-
-
-export default router
+export default router;
