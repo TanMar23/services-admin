@@ -1,13 +1,9 @@
-import ServiceManager from "../managers/ServiceManager.js";
-
-const dataPath = new URL('../data/services.json', import.meta.url);
-
-const manager = new ServiceManager();
+import * as service from '../services/services.service.js'
 
 
 const getServices = async (req, res) => {
     const { category, available } = req.query;
-    const data = await manager.getServices({category, available}, dataPath);
+    const data = await service.getServices({category, available});
     
     return res.status(200).json({
         status: 'success',
@@ -17,7 +13,7 @@ const getServices = async (req, res) => {
 
 const getServiceById = async (req, res) => {
     const { sid } = req.params;
-    const data = await manager.getServiceById(sid, dataPath);
+    const data = await service.getServiceById(sid);
 
     if (data === null) {
         return res.status(404).json({
@@ -32,7 +28,7 @@ const getServiceById = async (req, res) => {
 }
 
 const createService  = async (req, res) => {
-    const newServiceData = await manager.addService(req.body, dataPath);
+    const newServiceData = await service.createService(req.body);
 
     if (newServiceData === null) {
         return res.status(400).json({
@@ -50,7 +46,7 @@ const createService  = async (req, res) => {
 
 const updateService = async (req, res) => {
     const { sid } = req.params;
-    const updatedData = await manager.updateService(sid, req.body, dataPath);
+    const updatedData = await service.updateService(sid, req.body);
 
     if (updatedData === null) {
         return res.status(404).json({
@@ -75,7 +71,7 @@ const updateService = async (req, res) => {
 
 const deleteService = async (req, res) => {
     const { sid } = req.params;
-    const deleteItem = await manager.deleteService(sid, dataPath);
+    const deleteItem = await service.deleteService(sid);
 
     if (deleteItem === null) {
         return res.status(404).json({
