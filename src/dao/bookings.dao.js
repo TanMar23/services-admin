@@ -1,68 +1,60 @@
-import fs from 'node:fs/promises'
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-const FILE_PATH = path.join(__dirname, '../data/bookings.json')
-
-
+const FILE_PATH = path.join(__dirname, '../data/bookings.json');
 
 const readBookings = async () => {
-    try {
-      const data = await fs.readFile(FILE_PATH, 'utf-8');
+  try {
+    const data = await fs.readFile(FILE_PATH, 'utf-8');
 
-      return JSON.parse(data).bookings;
-    } catch (error) {
-      if (error.code === 'ENOENT') {
-        return [];
-      }
-      throw error;
+    return JSON.parse(data).bookings;
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      return [];
     }
+    throw error;
+  }
 };
 
 const writeBookings = async (bookings) => {
-    await fs.writeFile(FILE_PATH, JSON.stringify({ bookings }, null, 2));
+  await fs.writeFile(FILE_PATH, JSON.stringify({ bookings }, null, 2));
 };
 
 const create = async (data) => {
-    const newBooking = {...data, id: crypto.randomUUID()};
+  const newBooking = { ...data, id: crypto.randomUUID() };
 
-    const bookings = await readBookings();
+  const bookings = await readBookings();
 
-    bookings.push(newBooking);
+  bookings.push(newBooking);
 
-    await writeBookings(bookings)
+  await writeBookings(bookings);
 
-    return newBooking
-
-}
+  return newBooking;
+};
 
 const getById = async (id) => {
-    const result = (await readBookings()).find((booking) => booking.id === id) || null;
-    return result;
-}
+  const result = (await readBookings()).find((booking) => booking.id === id) || null;
+  return result;
+};
 
 const update = async (id, updatedData) => {
-    const bookings = await readBookings();
+  const bookings = await readBookings();
 
-    const bookingToUpdate = bookings.find((booking) => booking.id === id) || null;
+  const bookingToUpdate = bookings.find((booking) => booking.id === id) || null;
 
-    if (!bookingToUpdate) {
-      return null;
-    }
+  if (!bookingToUpdate) {
+    return null;
+  }
 
-    Object.assign(bookingToUpdate, updatedData);
+  Object.assign(bookingToUpdate, updatedData);
 
-    await writeBookings(bookings);
+  await writeBookings(bookings);
 
-    return bookingToUpdate;
-}
+  return bookingToUpdate;
+};
 
-
-export {
-    create,
-    getById,
-    update
-}
+export { create, getById, update };

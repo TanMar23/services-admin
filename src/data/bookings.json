@@ -19,9 +19,7 @@
       "date": "2026-09-11",
       "time": "10:00",
       "status": "pending",
-      "services": [
-        { "service": "2", "quantity": 1 }
-      ]
+      "services": [{ "service": "2", "quantity": 1 }]
     }
   ]
 }
