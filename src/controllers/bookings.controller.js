@@ -1,15 +1,8 @@
-import BookingManager from "../managers/BookingManager.js";
-import ServiceManager from "../managers/ServiceManager.js";
-
-const bookingsPath = new URL('../data/bookings.json', import.meta.url)
-const servicesPath = new URL('../data/services.json', import.meta.url);
-
-const serviceManager = new ServiceManager();
-const bookingManager = new BookingManager();
+import * as bookingsService from '../services/bookings.service.js'
 
 const getBookingById = async (req, res) => {
     const { bid } = req.params
-    const data = await bookingManager.getBookingById(bid, bookingsPath)
+    const data = await bookingsService.getBookingById(bid)
 
     if (data === null) {
         return res.status(404).json({
@@ -25,7 +18,7 @@ const getBookingById = async (req, res) => {
 }
 
 const createBooking = async (req, res) => {
-    const newBookingData = await bookingManager.createBooking(req.body, bookingsPath);
+    const newBookingData = await bookingsService.createBooking(req.body);
 
     if (newBookingData === null) {
         return res.status(400).json({
@@ -44,18 +37,16 @@ const createBooking = async (req, res) => {
 const addServiceToBooking = async (req, res) => {
     const { bid, sid } = req.params
 
-    const service = await serviceManager.getServiceById(sid, servicesPath)
+    const updateBookingData = await bookingsService.addServiceToBooking(bid, sid)
 
-    if (service === null) {
+    if (updateBookingData === 'SERVICE_NOT_FOUND') {
         return res.status(404).json({
             status: 'error',
             message: `Servicio con id ${sid} no encontrado`,
         });
     }
 
-    const updateBookingData = await bookingManager.addServiceToBooking(bid, sid, bookingsPath)
-
-    if (updateBookingData === null) {
+     if (updateBookingData === 'BOOKING_NOT_FOUND') {
         return res.status(404).json({
             status: 'error',
             message: `Reserva con id ${bid} no encontrada`,

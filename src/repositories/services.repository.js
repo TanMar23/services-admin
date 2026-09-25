@@ -1,4 +1,4 @@
-import * as dao from '../dao/services.dao.js'
+import * as dao from '../dao/services.dao.js';
 
 const getAll = () => {
     return dao.getAll()
