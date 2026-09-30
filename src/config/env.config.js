@@ -2,19 +2,20 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const config = {
-  port: Number(process.env.PORT),
+const envConfig = {
+  port: Number(process.env.PORT) || 8080,
   nodeEnv: process.env.NODE_ENV,
+  mongoUri: process.env.MONGODB_URI,
 };
 
-if (!config.port) {
-  console.error('Missing mandatory environment variable: PORT');
-  process.exit(1);
-}
-
-if (!config.nodeEnv) {
+if (!envConfig.nodeEnv) {
   console.error('Missing mandatory environment variable: NODE_ENV');
   process.exit(1);
 }
 
-export default config;
+if (!envConfig.mongoUri) {
+  console.error('Missing mandatory environment variable: MONGODB_URI');
+  process.exit(1);
+}
+
+export default envConfig;

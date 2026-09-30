@@ -1,9 +1,15 @@
 import { app } from './app.js';
-import config from './config/env.config.js';
+import { connectDB } from './config/database.config.js';
+import envConfig from './config/env.config.js';
 
-const PORT = config.port;
+const PORT = envConfig.port;
 
-// Línea que levanta o crea el servidor
-app.listen(PORT, () => {
-  console.log(`Servidor corriendo en el puerto ${PORT}`);
-});
+const startServer = async () => {
+  await connectDB();
+  // Línea que levanta o crea el servidor
+  app.listen(PORT, () => {
+    console.log(`Servidor corriendo en el puerto ${PORT}`);
+  });
+};
+
+startServer();
