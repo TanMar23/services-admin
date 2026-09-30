@@ -1,77 +1,68 @@
-import fs from 'node:fs/promises';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import mongoose from 'mongoose';
+import Service from '../models/service.model.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const FILE_PATH = path.join(__dirname, '../data/services.json');
-
-const readServices = async () => {
+const getAll = async () => {
   try {
-    const data = await fs.readFile(FILE_PATH, 'utf-8');
-    return JSON.parse(data).services;
+    const services = await Service.find().lean();
+    return services;
   } catch (error) {
-    if (error.code === 'ENOENT') {
-      return [];
-    }
-
+    console.error('Error al obtener los servicios de Mongo', error);
     throw error;
   }
 };
 
-const writeServices = async (services) => {
-  await fs.writeFile(FILE_PATH, JSON.stringify({ services }, null, 2));
-};
-
-const getAll = async () => {
-  return await readServices();
-};
-
 const getById = async (id) => {
-  const result = (await getAll()).find((service) => service.id === id) || null;
-  return result;
-};
-
-const create = async (data) => {
-  const newService = { ...data, id: crypto.randomUUID() };
-
-  const services = await getAll();
-
-  services.push(newService);
-
-  await writeServices(services);
-
-  return newService;
-};
-
-const update = async (id, updatedData) => {
-  const services = await getAll();
-
-  const serviceToUpdate = services.find((service) => service.id === id);
-
-  if (!serviceToUpdate) {
+  if (!mongoose.isValidObjectId(id)) {
     return null;
   }
 
-  Object.assign(serviceToUpdate, updatedData);
+  try {
+    const service = await Service.findById(id).lean();
+    return service ?? null;
+  } catch (error) {
+    console.error('Error al buscar servicio por ID en MongoDB:', error);
+    throw error;
+  }
+};
 
-  await writeServices(services);
+const create = async (data) => {
+  try {
+    const newService = await Service.create(data);
+    return newService.toObject();
+  } catch (error) {
+    console.error('Error al crear servicio en MongoDB:', error);
+    throw error;
+  }
+};
 
-  return serviceToUpdate;
+const update = async (id, updatedData) => {
+  if (!mongoose.isValidObjectId(id)) {
+    return null;
+  }
+
+  try {
+    const updatedService = await Service.findByIdAndUpdate(id, updatedData, {
+      returnDocument: 'after',
+    }).lean();
+
+    return updatedService ?? null;
+  } catch (error) {
+    console.error('Error al actualizar servicio en MongoDB:', error);
+    throw error;
+  }
 };
 
 const deleteById = async (id) => {
-  const services = await getAll();
-
-  const position = services.findIndex((service) => service.id === id);
-
-  if (position !== -1) {
-    services.splice(position, 1);
-    await writeServices(services);
-    return true;
-  } else {
+  if (!mongoose.isValidObjectId(id)) {
     return null;
+  }
+
+  try {
+    const deletedService = await Service.findByIdAndDelete(id).lean();
+    return deletedService ?? null;
+  } catch (error) {
+    console.error('Error al eliminar servicio de MongoDB:', error);
+    throw error;
   }
 };
 

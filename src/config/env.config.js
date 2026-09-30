@@ -5,7 +5,7 @@ dotenv.config();
 const envConfig = {
   port: Number(process.env.PORT) || 8080,
   nodeEnv: process.env.NODE_ENV,
-  mongoUri: process.env.MONGODB_URI,
+  mongoUri: process.env.MONGO_URI,
 };
 
 if (!envConfig.nodeEnv) {
@@ -14,7 +14,7 @@ if (!envConfig.nodeEnv) {
 }
 
 if (!envConfig.mongoUri) {
-  console.error('Missing mandatory environment variable: MONGODB_URI');
+  console.error('Missing mandatory environment variable: MONGO_URI');
   process.exit(1);
 }
 

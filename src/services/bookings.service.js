@@ -35,7 +35,7 @@ const addServiceToBooking = async (bid, sid) => {
 
   const services = booking.services;
 
-  const result = services.find((entry) => entry.service === sid) || null;
+  const result = services.find((entry) => entry.service.equals(sid)) || null;
 
   if (result === null) {
     services.push({ service: sid, quantity: 1 });
