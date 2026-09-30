@@ -4,7 +4,7 @@
       "id": "1",
       "name": "Corte de pelo mujer",
       "description": "Corte de pelo para mujer",
-      "duration": "1 hora",
+      "duration": 60,
       "price": 400,
       "category": ["mujer", "cabello"],
       "available": true
@@ -13,7 +13,7 @@
       "id": "2",
       "name": "Corte de pelo hombre",
       "description": "Corte de pelo para hombre",
-      "duration": "1 hora",
+      "duration": 60,
       "price": 300,
       "category": ["hombre", "cabello"],
       "available": true
@@ -22,7 +22,7 @@
       "id": "3",
       "name": "Gelish",
       "description": "Servicio de uñas gelish",
-      "duration": "1 hora",
+      "duration": 60,
       "price": 300,
       "category": ["uñas", "mujer", "hombre"],
       "available": true
@@ -31,7 +31,7 @@
       "id": "4",
       "name": "Maquillaje",
       "description": "Servicio de maquillaje",
-      "duration": "2 horas",
+      "duration": 120,
       "price": 1000,
       "category": ["rostro", "mujer", "hombre"],
       "available": false
@@ -40,7 +40,7 @@
       "id": "5",
       "name": "Pedicure",
       "description": "Pedicure",
-      "duration": "1 hora",
+      "duration": 60,
       "price": 300,
       "category": ["pies", "mujer", "hombre"],
       "available": false
