@@ -1,0 +1,38 @@
+<h1>{{title}}</h1>
+
+<ul class='bookings-list'>
+  {{#each bookings}}
+    <li class='booking-card'>
+
+      <header class='booking-header'>
+        <h2 class='booking-client'>{{clientName}}</h2>
+        <span class='badge badge--{{status}}'>{{status}}</span>
+      </header>
+
+      <p><a href='mailto:{{clientEmail}}'>{{clientEmail}}</a></p>
+      <p>
+        Fecha:
+        <time datetime='{{date}}'>{{date}}</time>
+        · Hora:
+        <time datetime='{{time}}'>{{time}}</time>
+      </p>
+
+      <ul class='booking-services'>
+        {{#each services}}
+          <li class='booking-service'>
+            <strong>{{service.name}}</strong>
+            ×
+            {{quantity}}
+            <p class='service-description'>{{service.description}}</p>
+            <p class='booking-service-price'>${{service.price}}</p>
+          </li>
+        {{/each}}
+      </ul>
+    </li>
+
+  {{else}}
+    <li class='empty'>No hay reservas registradas</li>
+
+  {{/each}}
+
+</ul>

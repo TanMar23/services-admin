@@ -34,7 +34,7 @@ body {
 }
 
 .tag {
-  background: #eee;
+  background: #90d5ff80;
   padding: 2px 8px;
   border-radius: 4px;
   margin-right: 4px;
@@ -47,4 +47,70 @@ body {
 
 .badge--off {
   color: red;
+}
+
+/* ---------- Reservas ---------- */
+.bookings-list {
+  list-style: none;
+  padding: 0;
+}
+
+.booking-card {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+.booking-card p {
+  margin: 5px 0;
+}
+
+.booking-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.booking-client {
+  margin: 0 0 5px;
+}
+
+.booking-services {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0 0;
+  border-top: 1px solid #eee;
+}
+
+.booking-service {
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.booking-service:last-child {
+  border-bottom: none;
+}
+
+.service-description {
+  color: #666;
+  font-size: 0.9em;
+}
+
+.badge--pending {
+  color: #b8860b;
+}
+
+.badge--confirmed {
+  color: green;
+}
+
+.badge--cancelled {
+  color: red;
+}
+
+.booking-service-price {
+  font-weight: bold;
 }
