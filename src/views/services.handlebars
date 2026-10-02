@@ -1,0 +1,31 @@
+<h1>Servicios</h1>
+
+<ul class='services-list'>
+  {{#each services}}
+    <li class='service-card'>
+
+      <h2 class='service-name'>{{name}}</h2>
+      <p class='service-description'>{{description}}</p>
+      <p>Precio: <strong>${{price}}</strong></p>
+      <p>Duración: {{duration}} minutos</p>
+
+      {{#if available}}
+        <span class='badge badge--ok'>Disponible</span>
+      {{else}}
+        <span class='badge badge--off'>Sin disponibilidad</span>
+      {{/if}}
+
+
+      <p class='service-categories'>
+        {{#each category}}
+          <span class='tag'>{{this}}</span>
+        {{/each}}
+      </p>
+    </li>
+
+  {{else}}
+    <li class='empty'>No hay servicios disponibles</li>
+
+  {{/each}}
+
+</ul>

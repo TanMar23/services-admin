@@ -1,0 +1,50 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f4f4f4;
+  color: #333;
+}
+
+.main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* ---------- Servicios ---------- */
+.services-list {
+  list-style: none;
+  padding: 0;
+}
+
+.service-card {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+.service-card p {
+  margin: 5px 0;
+}
+
+.service-name {
+  margin: 0 0 5px;
+}
+
+.tag {
+  background: #eee;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-right: 4px;
+  font-size: 0.85em;
+}
+
+.badge--ok {
+  color: green;
+}
+
+.badge--off {
+  color: red;
+}

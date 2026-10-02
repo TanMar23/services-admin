@@ -1,16 +1,24 @@
 import express from 'express';
+import { engine } from 'express-handlebars';
 import servicesRouter from './routes/services.router.js';
 import bookingsRouter from './routes/bookings.router.js';
+import viewsRouter from './routes/views.router.js';
 
-// Puede tener al mismo tiempo:
-// - rutas propias, definidas directamente con app.get(...), app.post(...), etc
-// - Uno o varios routers montados con app.use(basePath, router), cada uno con su propio prefijo
+import path from 'path';
+
 export const app = express();
 
-// Para poder recibir desde el body, sino no podemos recibir
+// Para poder recibir desde el body, sino no podemos recibir (permite leer datos enviados en formato JSON.)
 app.use(express.json());
 
-// No tiene el prefijo /api/services porque no vive dentro de services.router.js (servicesRouter)
+app.engine('handlebars', engine());
+app.set('view engine', 'handlebars');
+app.set('views', path.join(import.meta.dirname, 'views'));
+
+// TODO: Investigar qué es una ruta absoluta
+// Qué significa que express "no sirve archivos por su cuenta"
+app.use(express.static(path.join(import.meta.dirname, 'public')));
+
 app.get('/', (req, res) => {
   res.status(200).json({
     status: 'success',
@@ -18,7 +26,11 @@ app.get('/', (req, res) => {
   });
 });
 
-// Solo afecta a las rutas que están definidas dentro de servicesRouter, es decir, solo esas rutas tendrán el prefijo de /api/services
+// conecta el router de servicios.
 app.use('/api/services', servicesRouter);
 
+// conecta el router de reservas
 app.use('/api/bookings', bookingsRouter);
+
+// conecta el router de vistas con handlebars
+app.use('/views', viewsRouter);
