@@ -11,6 +11,16 @@ const create = async (data) => {
   }
 };
 
+const getAll = async () => {
+  try {
+    const bookings = await Booking.find().populate('services.service').lean();
+    return bookings;
+  } catch (error) {
+    console.error('Error al obtener las reservas de Mongo', error);
+    throw error;
+  }
+};
+
 const getById = async (id) => {
   if (!mongoose.isValidObjectId(id)) {
     return null;
@@ -42,4 +52,4 @@ const update = async (id, updatedData) => {
   }
 };
 
-export { create, getById, update };
+export { create, getAll, getById, update };

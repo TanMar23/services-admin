@@ -16,6 +16,10 @@ const createBooking = async (data) => {
   return await bookingsRepository.create(newBookingData);
 };
 
+const getAllBookings = () => {
+  return bookingsRepository.getAll();
+};
+
 const getBookingById = (id) => {
   return bookingsRepository.getById(id);
 };
@@ -46,4 +50,4 @@ const addServiceToBooking = async (bid, sid) => {
   return bookingsRepository.update(bid, { services: booking.services });
 };
 
-export { createBooking, getBookingById, addServiceToBooking };
+export { createBooking, getAllBookings, getBookingById, addServiceToBooking };
