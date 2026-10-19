@@ -36,6 +36,10 @@ const createService = async (req, res) => {
     });
   }
 
+  // Avisamos a todos los navegadores conectados que hay un servicio nuevo
+  const io = req.app.get('io');
+  io.emit('service:created', newServiceData);
+
   return res.status(201).json({
     status: 'success',
     data: newServiceData,
