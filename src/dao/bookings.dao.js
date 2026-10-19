@@ -35,6 +35,20 @@ const getById = async (id) => {
   }
 };
 
+const getByIdPopulated = async (id) => {
+  if (!mongoose.isValidObjectId(id)) {
+    return null;
+  }
+
+  try {
+    const booking = await Booking.findById(id).populate('services.service').lean();
+    return booking ?? null;
+  } catch (error) {
+    console.error('Error al buscar booking por ID con sus servicios en MongoDB:', error);
+    throw error;
+  }
+};
+
 const update = async (id, updatedData) => {
   if (!mongoose.isValidObjectId(id)) {
     return null;
@@ -52,4 +66,4 @@ const update = async (id, updatedData) => {
   }
 };
 
-export { create, getAll, getById, update };
+export { create, getAll, getById, getByIdPopulated, update };

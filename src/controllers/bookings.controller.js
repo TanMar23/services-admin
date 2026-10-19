@@ -20,13 +20,6 @@ const getBookingById = async (req, res) => {
 const createBooking = async (req, res) => {
   const newBookingData = await bookingsService.createBooking(req.validated.body);
 
-  if (newBookingData === null) {
-    return res.status(400).json({
-      status: 'error',
-      message: 'Error, no fue posible crear nueva reserva',
-    });
-  }
-
   return res.status(201).json({
     status: 'success',
     data: newBookingData,

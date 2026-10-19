@@ -29,13 +29,6 @@ const getServiceById = async (req, res) => {
 const createService = async (req, res) => {
   const newServiceData = await service.createService(req.validated.body);
 
-  if (newServiceData === null) {
-    return res.status(400).json({
-      status: 'error',
-      message: 'Error, no fue posible crear nuevo elemento',
-    });
-  }
-
   // Avisamos a todos los navegadores conectados que hay un servicio nuevo
   const io = req.app.get('io');
   io.emit('service:created', newServiceData);
@@ -55,13 +48,6 @@ const updateService = async (req, res) => {
     return res.status(404).json({
       status: 'error',
       message: 'Error: el recurso a actualizar no existe',
-    });
-  }
-
-  if (updatedData === 'INVALID_ID') {
-    return res.status(400).json({
-      status: 'error',
-      message: 'Error: intentaste modificar el id',
     });
   }
 

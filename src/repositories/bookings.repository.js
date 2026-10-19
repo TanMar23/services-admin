@@ -12,8 +12,12 @@ const getById = (id) => {
   return dao.getById(id);
 };
 
+const getByIdPopulated = (id) => {
+  return dao.getByIdPopulated(id);
+};
+
 const update = (id, data) => {
   return dao.update(id, data);
 };
 
-export { create, getAll, getById, update };
+export { create, getAll, getById, getByIdPopulated, update };

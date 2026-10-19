@@ -3,14 +3,6 @@ import * as bookingsRepository from '../repositories/bookings.repository.js';
 import * as servicesRepository from '../repositories/services.repository.js';
 
 const createBooking = async (data) => {
-  const requiredFields = ['clientName', 'clientEmail', 'date', 'time'];
-
-  const isComplete = requiredFields.every((field) => data[field] !== undefined);
-
-  if (!isComplete) {
-    return null;
-  }
-
   const newBookingData = { ...data, status: 'pending', services: [] };
 
   return await bookingsRepository.create(newBookingData);
@@ -21,7 +13,7 @@ const getAllBookings = () => {
 };
 
 const getBookingById = (id) => {
-  return bookingsRepository.getById(id);
+  return bookingsRepository.getByIdPopulated(id);
 };
 
 const addServiceToBooking = async (bid, sid) => {

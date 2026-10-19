@@ -44,14 +44,6 @@ const getServiceById = (id) => {
 };
 
 const createService = async (data) => {
-  const requiredFields = ['name', 'description', 'duration', 'price', 'category', 'available'];
-
-  const isComplete = requiredFields.every((field) => data[field] !== undefined);
-
-  if (!isComplete) {
-    return null;
-  }
-
   return await repository.create(data);
 };
 
@@ -60,10 +52,6 @@ const updateService = async (id, data) => {
 
   if (existing === null) {
     return null;
-  }
-
-  if ('id' in data) {
-    return 'INVALID_ID';
   }
 
   return repository.update(id, data);
