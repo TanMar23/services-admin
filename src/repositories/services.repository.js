@@ -4,6 +4,10 @@ const getAll = () => {
   return dao.getAll();
 };
 
+const paginate = (filter, options) => {
+  return dao.paginate(filter, options);
+};
+
 const getById = (id) => {
   return dao.getById(id);
 };
@@ -20,4 +24,4 @@ const deleteById = (id) => {
   return dao.delete(id);
 };
 
-export { getAll, getById, create, update, deleteById as delete };
+export { getAll, paginate, getById, create, update, deleteById as delete };

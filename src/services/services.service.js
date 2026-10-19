@@ -1,18 +1,42 @@
 import * as repository from '../repositories/services.repository.js';
 
-const getServices = async (filters = {}) => {
-  let result = await repository.getAll();
+const getServices = async ({ category, available, page, limit, sortBy, order }) => {
+  const filter = {};
 
-  if (filters.category !== undefined) {
-    result = result.filter((service) => service.category.includes(filters.category));
+  if (category !== undefined) {
+    filter.category = category;
   }
 
-  if (filters.available !== undefined) {
-    const isAvailable = filters.available === 'true' || filters.available === true;
-    result = result.filter((service) => service.available === isAvailable);
+  if (available !== undefined) {
+    filter.available = available;
   }
 
-  return result;
+  const direction = order === 'desc' ? -1 : 1;
+  const sort = { [sortBy]: direction, _id: direction };
+
+  const { docs, total } = await repository.paginate(filter, {
+    skip: (page - 1) * limit,
+    limit,
+    sort,
+  });
+
+  const totalPages = Math.ceil(total / limit);
+
+  return {
+    docs,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages,
+      hasPrevPage: page > 1,
+      hasNextPage: page < totalPages,
+    },
+  };
+};
+
+const getAllServices = () => {
+  return repository.getAll();
 };
 
 const getServiceById = (id) => {
@@ -49,4 +73,4 @@ const deleteService = async (id) => {
   return await repository.delete(id);
 };
 
-export { getServices, getServiceById, createService, updateService, deleteService };
+export { getServices, getAllServices, getServiceById, createService, updateService, deleteService };

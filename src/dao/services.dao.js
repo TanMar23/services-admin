@@ -11,6 +11,19 @@ const getAll = async () => {
   }
 };
 
+const paginate = async (filter, { skip, limit, sort }) => {
+  try {
+    const [docs, total] = await Promise.all([
+      Service.find(filter).sort(sort).skip(skip).limit(limit).lean(),
+      Service.countDocuments(filter),
+    ]);
+    return { docs, total };
+  } catch (error) {
+    console.error('Error al paginar los servicios de Mongo', error);
+    throw error;
+  }
+};
+
 const getById = async (id) => {
   if (!mongoose.isValidObjectId(id)) {
     return null;
@@ -66,4 +79,4 @@ const deleteById = async (id) => {
   }
 };
 
-export { getAll, getById, create, update, deleteById as delete };
+export { getAll, paginate, getById, create, update, deleteById as delete };

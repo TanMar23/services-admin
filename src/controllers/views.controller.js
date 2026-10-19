@@ -2,7 +2,7 @@ import * as service from '../services/services.service.js';
 import * as booking from '../services/bookings.service.js';
 
 const renderServices = async (req, res) => {
-  const services = await service.getServices();
+  const services = await service.getAllServices();
   res.render('services', { title: 'Servicios', services });
 };
 
