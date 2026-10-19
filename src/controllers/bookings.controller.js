@@ -18,7 +18,7 @@ const getBookingById = async (req, res) => {
 };
 
 const createBooking = async (req, res) => {
-  const newBookingData = await bookingsService.createBooking(req.body);
+  const newBookingData = await bookingsService.createBooking(req.validated.body);
 
   if (newBookingData === null) {
     return res.status(400).json({
@@ -35,7 +35,7 @@ const createBooking = async (req, res) => {
 };
 
 const addServiceToBooking = async (req, res) => {
-  const { bid, sid } = req.params;
+  const { bid, sid } = req.validated.params;
 
   const updateBookingData = await bookingsService.addServiceToBooking(bid, sid);
 

@@ -1,12 +1,12 @@
 import * as service from '../services/services.service.js';
 
 const getServices = async (req, res) => {
-  const { category, available } = req.query;
-  const data = await service.getServices({ category, available });
+  const { docs, pagination } = await service.getServices(req.validated.query);
 
   return res.status(200).json({
     status: 'success',
-    data,
+    data: docs,
+    pagination,
   });
 };
 
@@ -27,7 +27,7 @@ const getServiceById = async (req, res) => {
 };
 
 const createService = async (req, res) => {
-  const newServiceData = await service.createService(req.body);
+  const newServiceData = await service.createService(req.validated.body);
 
   if (newServiceData === null) {
     return res.status(400).json({
@@ -49,7 +49,7 @@ const createService = async (req, res) => {
 
 const updateService = async (req, res) => {
   const { sid } = req.params;
-  const updatedData = await service.updateService(sid, req.body);
+  const updatedData = await service.updateService(sid, req.validated.body);
 
   if (updatedData === null) {
     return res.status(404).json({
