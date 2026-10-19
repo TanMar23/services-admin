@@ -23,7 +23,8 @@
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "express-handlebars": "^9.0.1",
-    "mongoose": "^9.10.2"
+    "mongoose": "^9.10.2",
+    "socket.io": "^4.8.4"
   },
   "devDependencies": {
     "prettier": "^3.9.6"
