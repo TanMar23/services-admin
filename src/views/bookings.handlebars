@@ -19,13 +19,23 @@
 
       <ul class='booking-services'>
         {{#each services}}
-          <li class='booking-service'>
-            <strong>{{service.name}}</strong>
-            ×
-            {{quantity}}
-            <p class='service-description'>{{service.description}}</p>
-            <p class='booking-service-price'>${{service.price}}</p>
-          </li>
+          {{! Si el servicio fue eliminado, populate devuelve null en "service" }}
+          {{#if service}}
+            <li class='booking-service'>
+              <strong>{{service.name}}</strong>
+              ×
+              {{quantity}}
+              <p class='service-description'>{{service.description}}</p>
+              <p class='booking-service-price'>${{service.price}}</p>
+            </li>
+          {{else}}
+            <li class='booking-service booking-service--deleted'>
+              <strong>Servicio eliminado</strong>
+              ×
+              {{quantity}}
+              <p class='service-description'>Este servicio ya no existe en el sistema.</p>
+            </li>
+          {{/if}}
         {{/each}}
       </ul>
     </li>
