@@ -1,10 +1,56 @@
 import * as repository from '../repositories/services.repository.js';
 
-const getServices = async ({ category, available, page, limit, sortBy, order }) => {
+// Escapa los caracteres especiales para que search se busque como texto literal
+const escapeRegex = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+// Arma { $gte, $lte } solo con los límites que vinieron
+const rangeFilter = (min, max) => {
+  const range = {};
+
+  if (min !== undefined) {
+    range.$gte = min;
+  }
+
+  if (max !== undefined) {
+    range.$lte = max;
+  }
+
+  return Object.keys(range).length > 0 ? range : undefined;
+};
+
+const getServices = async ({
+  category,
+  search,
+  minPrice,
+  maxPrice,
+  minDuration,
+  maxDuration,
+  available,
+  page,
+  limit,
+  sortBy,
+  order,
+}) => {
   const filter = {};
 
+  // Servicios que tengan al menos una de las categorías pedidas
   if (category !== undefined) {
-    filter.category = category;
+    filter.category = { $in: category };
+  }
+
+  if (search !== undefined) {
+    const regex = new RegExp(escapeRegex(search), 'i');
+    filter.$or = [{ name: regex }, { description: regex }];
+  }
+
+  const price = rangeFilter(minPrice, maxPrice);
+  if (price !== undefined) {
+    filter.price = price;
+  }
+
+  const duration = rangeFilter(minDuration, maxDuration);
+  if (duration !== undefined) {
+    filter.duration = duration;
   }
 
   if (available !== undefined) {

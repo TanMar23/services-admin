@@ -37,31 +37,71 @@ const updateServiceSchema = z
   })
   .partial()
   .refine((data) => Object.keys(data).length > 0, {
-    error: 'Enviá al menos un campo para actualizar',
+    error: 'Envía al menos un campo para actualizar',
   });
 
-// Los query params siempre llegan como texto, por eso se convierten a número o booleano
-const servicesQuerySchema = z.object({
-  category: z.string().trim().min(1, { error: 'category no puede estar vacío' }).optional(),
-  available: z
-    .enum(['true', 'false'], { error: 'available debe ser true o false' })
-    .transform((value) => value === 'true')
-    .optional(),
-  page: z.coerce
-    .number({ error: 'page debe ser un número' })
-    .int({ error: 'page debe ser un número entero' })
-    .min(1, { error: 'page debe ser mayor o igual a 1' })
-    .default(1),
-  limit: z.coerce
-    .number({ error: 'limit debe ser un número' })
-    .int({ error: 'limit debe ser un número entero' })
-    .min(1, { error: 'limit debe ser mayor o igual a 1' })
-    .max(100, { error: 'limit no puede ser mayor a 100' })
-    .default(10),
-  sortBy: z
-    .enum(['name', 'price', 'duration'], { error: 'sortBy debe ser name, price o duration' })
-    .default('name'),
-  order: z.enum(['asc', 'desc'], { error: 'order debe ser asc o desc' }).default('asc'),
+// Acepta ?category=a,b y también ?category=a&category=b (Express arma un array)
+const categoryQuery = z
+  .union([z.string(), z.array(z.string())], { error: 'category debe ser un texto' })
+  .transform((value) =>
+    [value]
+      .flat()
+      .flatMap((item) => item.split(','))
+      .map((item) => item.trim())
+  )
+  .refine((categories) => categories.every((item) => item.length > 0), {
+    error: 'category no puede contener valores vacíos',
+  });
+
+const numberQuery = (field) =>
+  z.coerce
+    .number({ error: `${field} debe ser un número` })
+    .min(0, { error: `${field} debe ser mayor o igual a 0` })
+    .optional();
+
+const rangeError = (field) => ({
+  error: `min${field} no puede ser mayor que max${field}`,
+  path: [`min${field}`],
 });
+
+// Los query params siempre llegan como texto, por eso se convierten a número o booleano
+const servicesQuerySchema = z
+  .object({
+    category: categoryQuery.optional(),
+    search: z.string().trim().min(1, { error: 'search no puede estar vacío' }).optional(),
+    minPrice: numberQuery('minPrice'),
+    maxPrice: numberQuery('maxPrice'),
+    minDuration: numberQuery('minDuration'),
+    maxDuration: numberQuery('maxDuration'),
+    available: z
+      .enum(['true', 'false'], { error: 'available debe ser true o false' })
+      .transform((value) => value === 'true')
+      .optional(),
+    page: z.coerce
+      .number({ error: 'page debe ser un número' })
+      .int({ error: 'page debe ser un número entero' })
+      .min(1, { error: 'page debe ser mayor o igual a 1' })
+      .default(1),
+    limit: z.coerce
+      .number({ error: 'limit debe ser un número' })
+      .int({ error: 'limit debe ser un número entero' })
+      .min(1, { error: 'limit debe ser mayor o igual a 1' })
+      .max(100, { error: 'limit no puede ser mayor a 100' })
+      .default(10),
+    sortBy: z
+      .enum(['name', 'price', 'duration'], { error: 'sortBy debe ser name, price o duration' })
+      .default('name'),
+    order: z.enum(['asc', 'desc'], { error: 'order debe ser asc o desc' }).default('asc'),
+  })
+  .refine(
+    ({ minPrice, maxPrice }) =>
+      minPrice === undefined || maxPrice === undefined || minPrice <= maxPrice,
+    rangeError('Price')
+  )
+  .refine(
+    ({ minDuration, maxDuration }) =>
+      minDuration === undefined || maxDuration === undefined || minDuration <= maxDuration,
+    rangeError('Duration')
+  );
 
 export { createServiceSchema, updateServiceSchema, servicesQuerySchema };
