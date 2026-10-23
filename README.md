@@ -1,6 +1,6 @@
 # Services Admin
 
-API REST con Node.js y Express para un sistema de turnos y reservas de una peluquería. Persiste los datos en MongoDB usando Mongoose.
+API REST con Node.js y Express para un sistema de citas y reservas de una peluquería. Persiste los datos en MongoDB usando Mongoose.
 
 Además de la API, incluye vistas renderizadas en el servidor con Handlebars y actualizaciones en tiempo real con Socket.io: cuando se crea un servicio, aparece en la vista de servicios sin recargar la página.
 
@@ -15,7 +15,7 @@ npm install
 cp .env.example .env
 ```
 
-Completá `.env` con los valores necesarios (ver tabla abajo).
+Completa `.env` con los valores necesarios (ver tabla abajo).
 
 ## Variables de entorno
 
@@ -51,14 +51,16 @@ Router → Middleware de validación (Zod) → Controller → Service → Reposi
 | **Router**     | `src/routes/`                          | Define las rutas HTTP y las asocia a una función del controller. Si la ruta recibe datos, antepone el middleware de validación.                                                                                                                                              |
 | **Validación** | `src/middlewares/` y `src/validators/` | Los esquemas de Zod (`validators/`) describen qué datos acepta cada endpoint. El middleware `validate` (`middlewares/`) los aplica a `body`, `query` o `params`: si algo es inválido responde 400 y la request no sigue; si no, deja los datos validados en `req.validated`. |
 | **Controller** | `src/controllers/`                     | Lee los datos de `req.validated` (o `req.params` donde no hay validación), llama al service y traduce el resultado a una respuesta HTTP (código de estado + JSON `{ status, data, message }`).                                                                               |
-| **Service**    | `src/services/`                        | Lógica de negocio: arma filtros, orden y paginación, asigna valores por defecto y combina recursos (por ejemplo, agregar un servicio a una reserva).                                                                                                                         |
+| **Service**    | `src/services/`                        | Lógica de negocio: construye filtros, orden y paginación, asigna valores por defecto y combina recursos (por ejemplo, agregar un servicio a una reserva).                                                                                                                    |
 | **Repository** | `src/repositories/`                    | Interfaz de acceso a datos que usa el service. Delega en el DAO, de modo que cambiar la forma de persistir no afecta a la lógica de negocio.                                                                                                                                 |
 | **DAO**        | `src/dao/`                             | Acceso directo a la persistencia: usa los modelos de Mongoose para consultar y modificar MongoDB. Si el id no es un `ObjectId` válido devuelve `null`.                                                                                                                       |
 | **Model**      | `src/models/`                          | Schemas de Mongoose: definen los campos, tipos, obligatorios y valores por defecto de cada colección.                                                                                                                                                                        |
 
-Los datos inválidos se cortan en el middleware con un 400, antes de llegar al controller y a MongoDB. Las validaciones de los modelos de Mongoose quedan como segunda línea de defensa.
+Los datos inválidos se detienen en el middleware con un 400, antes de llegar al controller y a MongoDB. Las validaciones de los modelos de Mongoose quedan como segunda línea de defensa.
 
 Los services informan que un recurso no existe devolviendo `null` o un código (`'SERVICE_NOT_FOUND'`, `'BOOKING_NOT_FOUND'`), y el controller responde 404.
+
+Los errores inesperados (por ejemplo, que se caiga la conexión a MongoDB) no se atrapan en cada capa: suben hasta el middleware de errores, que genera una respuesta estándar (ver [Manejo de errores](#manejo-de-errores)).
 
 Las vistas siguen el mismo camino que la API. La única diferencia es que su controller (`views.controller.js`) responde con `res.render` (HTML) en lugar de `res.json`, y usa los mismos services que los controllers de la API. La vista de servicios usa `getAllServices()`, que devuelve todos los servicios sin paginar.
 
@@ -67,13 +69,14 @@ Las vistas siguen el mismo camino que la API. La única diferencia es que su con
 ```
 src/
 ├── server.js                # Crea el servidor HTTP, configura Socket.io y lo levanta en el puerto configurado
-├── app.js                   # Crea la app de Express, configura Handlebars y archivos estáticos, y monta los routers
+├── app.js                   # Crea la app de Express, configura Handlebars y archivos estáticos, monta los routers y el manejo de errores
 ├── config/
 │   ├── env.config.js        # Carga y valida las variables de entorno
 │   └── database.config.js   # Conexión a MongoDB con Mongoose
 ├── routes/                  # services.router.js, bookings.router.js, views.router.js
 ├── middlewares/
-│   └── validate.middleware.js   # Aplica los esquemas de Zod y responde 400 si los datos son inválidos
+│   ├── validate.middleware.js   # Aplica los esquemas de Zod y responde 400 si los datos son inválidos
+│   └── error.middleware.js      # Responde 404 a rutas inexistentes y unifica la respuesta ante errores
 ├── validators/
 │   ├── common.validator.js      # Helpers compartidos: mensajes de obligatorio/tipo y validación de ObjectId
 │   ├── services.validator.js    # Esquemas para crear, actualizar y listar servicios
@@ -108,14 +111,17 @@ Base: `/api/services`
 
 Todos los parámetros son opcionales y se pueden combinar. El filtrado, el orden y la paginación los resuelve MongoDB (no se traen todos los servicios a memoria).
 
-| Parámetro   | Valores                         | Por defecto | Descripción                                                      |
-| ----------- | ------------------------------- | ----------- | ---------------------------------------------------------------- |
-| `category`  | texto                           | —           | Servicios que tengan esa categoría dentro de su array `category` |
-| `available` | `true` \| `false`               | —           | Filtra por disponibilidad                                        |
-| `page`      | entero ≥ 1                      | `1`         | Página a devolver                                                |
-| `limit`     | entero entre 1 y 100            | `10`        | Cantidad de resultados por página                                |
-| `sortBy`    | `name` \| `price` \| `duration` | `name`      | Campo por el que se ordena                                       |
-| `order`     | `asc` \| `desc`                 | `asc`       | Sentido del orden                                                |
+| Parámetro                     | Valores                          | Por defecto | Descripción                                                                                                                                          |
+| ----------------------------- | -------------------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `category`                    | texto o lista separada por comas | —           | Servicios que tengan al menos una de esas categorías en su array `category`. También acepta el parámetro repetido (`?category=corte&category=color`) |
+| `search`                      | texto                            | —           | Busca el texto en `name` o `description` (sin distinguir mayúsculas)                                                                                 |
+| `minPrice` / `maxPrice`       | número ≥ 0                       | —           | Rango de precio (inclusive). `minPrice` no puede ser mayor que `maxPrice`                                                                            |
+| `minDuration` / `maxDuration` | número ≥ 0                       | —           | Rango de duración en minutos (inclusive). `minDuration` no puede ser mayor que `maxDuration`                                                         |
+| `available`                   | `true` \| `false`                | —           | Filtra por disponibilidad                                                                                                                            |
+| `page`                        | entero ≥ 1                       | `1`         | Página a devolver                                                                                                                                    |
+| `limit`                       | entero entre 1 y 100             | `10`        | Cantidad de resultados por página                                                                                                                    |
+| `sortBy`                      | `name` \| `price` \| `duration`  | `name`      | Campo por el que se ordena                                                                                                                           |
+| `order`                       | `asc` \| `desc`                  | `asc`       | Sentido del orden                                                                                                                                    |
 
 Si un parámetro tiene un valor no permitido (por ejemplo `page=0` o `sortBy=_id`), la API responde 400 (ver [Validaciones](#validaciones-zod)).
 
@@ -125,7 +131,13 @@ Ejemplos:
 # Filtros: servicios de la categoría "corte" que estén disponibles
 curl "http://localhost:8080/api/services?category=corte&available=true"
 
-# Paginación: segunda página, de a 5 resultados
+# Varias categorías: servicios de "corte" o de "color"
+curl "http://localhost:8080/api/services?category=corte,color"
+
+# Búsqueda por texto y rangos: "barba" en nombre o descripción, entre $200 y $600, hasta 45 minutos
+curl "http://localhost:8080/api/services?search=barba&minPrice=200&maxPrice=600&maxDuration=45"
+
+# Paginación: segunda página, con 5 resultados por página
 curl "http://localhost:8080/api/services?page=2&limit=5"
 
 # Ordenamiento: del más caro al más barato
@@ -141,7 +153,7 @@ La respuesta incluye el listado en `data` y los metadatos de paginación en `pag
 {
   "status": "success",
   "data": [
-    { "_id": "6650a1b2c3d4e5f6a7b8c9d0", "name": "Corte clásico", "price": 5000, "...": "..." }
+    { "_id": "6650a1b2c3d4e5f6a7b8c9d0", "name": "Corte clásico", "price": 250, "...": "..." }
   ],
   "pagination": {
     "total": 12,
@@ -206,7 +218,7 @@ curl http://localhost:8080/api/bookings/6650a1b2c3d4e5f6a7b8c9e1
           "name": "Corte clásico",
           "description": "Corte con tijera y máquina",
           "duration": 30,
-          "price": 5000,
+          "price": 250,
           "category": ["corte"],
           "available": true
         },
@@ -238,7 +250,7 @@ Ejemplo de respuesta con datos inválidos:
 ```bash
 curl -X POST http://localhost:8080/api/services \
   -H "Content-Type: application/json" \
-  -d '{"name":"Corte","price":"5000","available":"si"}'
+  -d '{"name":"Corte","price":"250","available":"si"}'
 ```
 
 ```json
@@ -256,6 +268,33 @@ curl -X POST http://localhost:8080/api/services \
 ```
 
 `location` indica dónde estaba el dato (`body`, `query` o `params`) y `field`, qué campo falló.
+
+## Manejo de errores
+
+Los errores se manejan en un solo lugar, `src/middlewares/error.middleware.js`, que se monta al final de `app.js`:
+
+- `notFoundHandler`: responde 404 si ninguna ruta coincide con la request.
+- `errorHandler`: recibe cualquier error que se lance en un middleware, controller, service, repository o DAO. Express 5 le pasa automáticamente los errores de las funciones `async`, así que no hace falta `try/catch` en cada capa.
+
+Todas las respuestas de error tienen la misma forma:
+
+```json
+{ "status": "error", "message": "Error interno del servidor" }
+```
+
+| Error                                                 | Código | Mensaje                                |
+| ----------------------------------------------------- | ------ | -------------------------------------- |
+| Ruta inexistente                                      | 404    | `Ruta GET /api/noexiste no encontrada` |
+| Body con JSON mal formado                             | 400    | `El body no es un JSON válido`         |
+| Body demasiado grande                                 | 413    | `El body es demasiado grande`          |
+| Validación de Mongoose (`ValidationError`)            | 400    | `Los datos no cumplen el modelo`       |
+| Valor con tipo incorrecto para Mongoose (`CastError`) | 400    | `El valor de <campo> no es válido`     |
+| Clave única repetida en MongoDB (código `11000`)      | 409    | `El recurso ya existe`                 |
+| Cualquier otro error                                  | 500    | `Error interno del servidor`           |
+
+En los errores 500 el detalle completo (con el stack) se muestra por consola y no se envía al cliente, para no exponer información interna.
+
+Los 400 de Zod (con el array `errors`) y los 404 de recursos que no existen siguen respondiéndose desde el middleware de validación y desde los controllers, porque no son excepciones sino casos esperados.
 
 ## Vistas (Handlebars)
 
@@ -280,13 +319,13 @@ El controller obtiene la instancia de Socket.io con `req.app.get('io')` y emite 
 
 ### Cómo probarlo
 
-1. Levanta el servidor: (`npm run dev`) y abre `http://localhost:8080/views/services` en el navegador.
+1. Inicia el servidor (`npm run dev`) y abre `http://localhost:8080/views/services` en el navegador.
 2. Desde otra terminal, crea un servicio:
 
 ```bash
 curl -X POST http://localhost:8080/api/services \
   -H "Content-Type: application/json" \
-  -d '{"name":"Corte de prueba","description":"Probando Socket.io","duration":30,"price":5000,"category":["corte"],"available":true}'
+  -d '{"name":"Corte de prueba","description":"Probando Socket.io","duration":30,"price":250,"category":["corte"],"available":true}'
 ```
 
 3. La tarjeta nueva aparece en el navegador sin recargar la página.
