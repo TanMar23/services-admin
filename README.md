@@ -4,7 +4,7 @@ API REST con Node.js y Express para un sistema de citas y reservas de una peluqu
 
 Además de la API, incluye vistas renderizadas en el servidor con Handlebars y actualizaciones en tiempo real con Socket.io: cuando se crea un servicio, aparece en la vista de servicios sin recargar la página.
 
-> Requiere Node.js 20 o superior y una instancia de MongoDB (local o en la nube, por ejemplo MongoDB Atlas).
+> Requiere Node.js 24 o superior y una instancia de MongoDB (local o en la nube, por ejemplo MongoDB Atlas).
 
 ## Instalación
 
