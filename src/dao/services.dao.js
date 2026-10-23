@@ -2,26 +2,16 @@ import mongoose from 'mongoose';
 import Service from '../models/service.model.js';
 
 const getAll = async () => {
-  try {
-    const services = await Service.find().lean();
-    return services;
-  } catch (error) {
-    console.error('Error al obtener los servicios de Mongo', error);
-    throw error;
-  }
+  const services = await Service.find().lean();
+  return services;
 };
 
 const paginate = async (filter, { skip, limit, sort }) => {
-  try {
-    const [docs, total] = await Promise.all([
-      Service.find(filter).sort(sort).skip(skip).limit(limit).lean(),
-      Service.countDocuments(filter),
-    ]);
-    return { docs, total };
-  } catch (error) {
-    console.error('Error al paginar los servicios de Mongo', error);
-    throw error;
-  }
+  const [docs, total] = await Promise.all([
+    Service.find(filter).sort(sort).skip(skip).limit(limit).lean(),
+    Service.countDocuments(filter),
+  ]);
+  return { docs, total };
 };
 
 const getById = async (id) => {
@@ -29,23 +19,13 @@ const getById = async (id) => {
     return null;
   }
 
-  try {
-    const service = await Service.findById(id).lean();
-    return service ?? null;
-  } catch (error) {
-    console.error('Error al buscar servicio por ID en MongoDB:', error);
-    throw error;
-  }
+  const service = await Service.findById(id).lean();
+  return service ?? null;
 };
 
 const create = async (data) => {
-  try {
-    const newService = await Service.create(data);
-    return newService.toObject();
-  } catch (error) {
-    console.error('Error al crear servicio en MongoDB:', error);
-    throw error;
-  }
+  const newService = await Service.create(data);
+  return newService.toObject();
 };
 
 const update = async (id, updatedData) => {
@@ -53,16 +33,11 @@ const update = async (id, updatedData) => {
     return null;
   }
 
-  try {
-    const updatedService = await Service.findByIdAndUpdate(id, updatedData, {
-      returnDocument: 'after',
-    }).lean();
+  const updatedService = await Service.findByIdAndUpdate(id, updatedData, {
+    returnDocument: 'after',
+  }).lean();
 
-    return updatedService ?? null;
-  } catch (error) {
-    console.error('Error al actualizar servicio en MongoDB:', error);
-    throw error;
-  }
+  return updatedService ?? null;
 };
 
 const deleteById = async (id) => {
@@ -70,13 +45,8 @@ const deleteById = async (id) => {
     return null;
   }
 
-  try {
-    const deletedService = await Service.findByIdAndDelete(id).lean();
-    return deletedService ?? null;
-  } catch (error) {
-    console.error('Error al eliminar servicio de MongoDB:', error);
-    throw error;
-  }
+  const deletedService = await Service.findByIdAndDelete(id).lean();
+  return deletedService ?? null;
 };
 
 export { getAll, paginate, getById, create, update, deleteById as delete };

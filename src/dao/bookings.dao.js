@@ -2,23 +2,13 @@ import mongoose from 'mongoose';
 import Booking from '../models/booking.model.js';
 
 const create = async (data) => {
-  try {
-    const newBooking = await Booking.create(data);
-    return newBooking.toObject();
-  } catch (error) {
-    console.error('Error al crear booking en MongoDB:', error);
-    throw error;
-  }
+  const newBooking = await Booking.create(data);
+  return newBooking.toObject();
 };
 
 const getAll = async () => {
-  try {
-    const bookings = await Booking.find().populate('services.service').lean();
-    return bookings;
-  } catch (error) {
-    console.error('Error al obtener las reservas de Mongo', error);
-    throw error;
-  }
+  const bookings = await Booking.find().populate('services.service').lean();
+  return bookings;
 };
 
 const getById = async (id) => {
@@ -26,13 +16,8 @@ const getById = async (id) => {
     return null;
   }
 
-  try {
-    const booking = await Booking.findById(id).lean();
-    return booking ?? null;
-  } catch (error) {
-    console.error('Error al buscar booking por ID en MongoDB:', error);
-    throw error;
-  }
+  const booking = await Booking.findById(id).lean();
+  return booking ?? null;
 };
 
 const getByIdPopulated = async (id) => {
@@ -40,13 +25,8 @@ const getByIdPopulated = async (id) => {
     return null;
   }
 
-  try {
-    const booking = await Booking.findById(id).populate('services.service').lean();
-    return booking ?? null;
-  } catch (error) {
-    console.error('Error al buscar booking por ID con sus servicios en MongoDB:', error);
-    throw error;
-  }
+  const booking = await Booking.findById(id).populate('services.service').lean();
+  return booking ?? null;
 };
 
 const update = async (id, updatedData) => {
@@ -54,16 +34,11 @@ const update = async (id, updatedData) => {
     return null;
   }
 
-  try {
-    const updatedBooking = await Booking.findByIdAndUpdate(id, updatedData, {
-      returnDocument: 'after',
-    }).lean();
+  const updatedBooking = await Booking.findByIdAndUpdate(id, updatedData, {
+    returnDocument: 'after',
+  }).lean();
 
-    return updatedBooking ?? null;
-  } catch (error) {
-    console.error('Error al actualizar booking en MongoDB:', error);
-    throw error;
-  }
+  return updatedBooking ?? null;
 };
 
 export { create, getAll, getById, getByIdPopulated, update };

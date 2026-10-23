@@ -3,6 +3,7 @@ import { engine } from 'express-handlebars';
 import servicesRouter from './routes/services.router.js';
 import bookingsRouter from './routes/bookings.router.js';
 import viewsRouter from './routes/views.router.js';
+import { notFoundHandler, errorHandler } from './middlewares/error.middleware.js';
 
 import path from 'path';
 
@@ -22,7 +23,7 @@ app.use(express.static(path.join(import.meta.dirname, 'public')));
 app.get('/', (req, res) => {
   res.status(200).json({
     status: 'success',
-    message: 'API del sistema de turnos y reservas con PORT',
+    message: 'API del sistema de citas y reservas con PORT',
   });
 });
 
@@ -34,3 +35,7 @@ app.use('/api/bookings', bookingsRouter);
 
 // conecta el router de vistas con handlebars
 app.use('/views', viewsRouter);
+
+// Van al final: solo se ejecutan si ninguna ruta respondió o si alguna lanzó un error
+app.use(notFoundHandler);
+app.use(errorHandler);
